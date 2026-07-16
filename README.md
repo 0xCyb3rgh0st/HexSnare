@@ -1,53 +1,110 @@
-# 0xRegHex ⌗
+# HexSnare
 
-**Regex forge for log hunters & pentesters.** Paste raw logs, *select* the tokens you care about, and 0xRegHex forges a portable, capture-group regex you can drop into `grep -P`, Python, or JS.
+**Capture signals from noisy logs.**
 
-A 100% client-side SPA — no backend, no telemetry, no runtime dependencies. Your logs never leave the browser.
+HexSnare is a terminal-styled regex forge for log hunters, pentesters, DFIR analysts, and bug bounty researchers. Paste raw logs, select the tokens that matter, and generate clean capture-group regex for `grep -P`, Python, JavaScript, or raw workflows.
+
+No backend. No telemetry. No log upload. Everything runs in your browser.
+
+![Static](https://img.shields.io/badge/static-client--side-00ff9c?style=for-the-badge&labelColor=070a0f)
+![Vite](https://img.shields.io/badge/vite-powered-35e0ff?style=for-the-badge&labelColor=070a0f)
+![License](https://img.shields.io/badge/license-MIT-ffcf4d?style=for-the-badge&labelColor=070a0f)
+
+## What It Does
+
+HexSnare turns messy log lines into reusable regex patterns.
+
+1. Paste raw logs.
+2. Highlight an IP, hash, token, path, user, status code, or timestamp.
+3. HexSnare creates a capture group.
+4. Tune the matcher, name the group, and test against all lines.
+5. Export the regex for your target tool.
 
 ## Features
 
-- **Select-to-forge** — highlight any token on a log line to mint a color-coded capture group.
-- **Smart inference** — selecting `192.168.1.1`, a SHA-256, a JWT, an epoch, etc. suggests a tuned matcher automatically (override or name each group).
-- **Security pattern library** — one-click IPv4/6, MAC, MD5/SHA/UUID, JWT, Base64, AWS/GitHub/Slack keys, CVE-ID, private-key headers, Apache/syslog timestamps, and more.
-- **Live tester** — runs your pattern over every line, counts matches, and highlights hits + extracted groups in-editor.
-- **Multi-target export** — JS `/…/gi`, `grep -P '…'`, or `re.compile(r"…")`.
-- **Regex explainer** — plain-English breakdown of the generated pattern.
-- **Whitespace generalization** (`\s+`) and `^…$` anchoring toggles for robust log lines.
-- **Session autosave** to `localStorage`.
+- Select-to-forge capture groups from real log tokens
+- Smart matcher suggestions for IPs, hashes, JWTs, timestamps, UUIDs, and security artifacts
+- Live TEST mode with match counts and highlighted captures
+- Pattern library for common hunting and pentest regex snippets
+- Output formats for JavaScript, Python, `grep -P`, and raw regex
+- Regex explanation panel for quick pattern review
+- Whitespace generalization with `\s+`
+- Full-line anchoring with `^...$`
+- Session autosave in `localStorage`
+- Hacker-style UI with onboarding tips and hover hints
 
-## Keyboard shortcuts
+## Use Cases
 
-| Key | Action |
-| --- | --- |
-| `Ctrl/⌘ + Enter` | Toggle BUILD ⇄ TEST |
-| `Ctrl/⌘ + K` | Clear captures |
-| `Ctrl/⌘ + Shift + C` | Copy current output |
-| `Ctrl/⌘ + L` | Focus library filter |
+- Build regex from proxy, access, auth, syslog, or app logs
+- Extract indicators of compromise from noisy text
+- Prepare `grep -P` commands during recon or triage
+- Create reusable capture groups for scripts and reports
+- Test log parsing ideas without sending logs to a server
 
-## Run
+## Quick Start
 
 ```bash
 npm install
-npm run dev      # http://localhost:1337
-npm run build    # static bundle → dist/
+npm run dev
 ```
+
+Open:
+
+```text
+http://localhost:1337
+```
+
+Build static files:
+
+```bash
+npm run build
+```
+
+Run smoke checks:
+
+```bash
+npm test
+```
+
+## Keyboard Shortcuts
+
+| Shortcut | Action |
+| --- | --- |
+| `Ctrl/Command + Enter` | Toggle BUILD / TEST |
+| `Ctrl/Command + K` | Clear captures |
+| `Ctrl/Command + Shift + C` | Copy current output |
+| `Ctrl/Command + L` | Focus pattern library search |
+
+## Project Structure
+
+```text
+src/
+  main.js         App bootstrap
+  ui.js           DOM rendering, events, onboarding
+  store.js        Reactive state and localStorage
+  regexEngine.js  Capture groups to generated regex
+  patterns.js     Matcher inference and pattern library
+  tester.js       Live match engine
+  explainer.js    Regex breakdown
+  utils.js        Escaping, line math, highlighting
+  styles.css      Terminal UI theme
+
+scripts/
+  smoke.mjs       Smoke checks
+```
+
+## Privacy
+
+HexSnare is fully client-side. Logs stay in the browser unless you copy, export, or deploy modified code that sends them elsewhere.
+
+Do not put secrets, API keys, private payloads, or sensitive investigation data into any public frontend app unless you understand the risk.
 
 ## Stack
 
-Vanilla JS (ES2022 modules) · Vite · hand-written CSS. That's it.
-
-```
-src/
-  main.js         bootstrap
-  ui.js           DOM rendering + events
-  store.js        reactive state + localStorage
-  regexEngine.js  template → capture-group regex
-  patterns.js     token inference + security library
-  tester.js       live match engine (uses /d group indices)
-  explainer.js    regex → human-readable breakdown
-  utils.js        escaping, line math, highlight renderer
-  styles.css      terminal/hacker theme
-```
+- Vanilla JavaScript
+- Vite
+- CSS
+- Browser `localStorage`
 
 ## License
 
