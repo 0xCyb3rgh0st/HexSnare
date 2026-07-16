@@ -1,6 +1,7 @@
 // store.js — tiny reactive state container with localStorage persistence.
 
-const KEY = '0xreghex.session.v1';
+const KEY = 'hexsnare.session.v1';
+const LEGACY_KEY = '0xreghex.session.v1';
 
 const DEFAULT_INPUT = `1331901000.260000\tC6SwUo2lWDfrpgfgVl\t192.168.202.79\t50504\t192.168.229.251\t80\ttcp\thttp\t0.010000\t182\t214\tSF
 1331901001.440000\tC26Bhi2scZzizn7ph9\t192.168.202.79\t50681\t192.168.229.251\t80\ttcp\thttp\t0.010000\t172\t281\tSF
@@ -21,7 +22,7 @@ const DEFAULTS = {
 
 function load() {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(KEY) || localStorage.getItem(LEGACY_KEY);
     if (!raw) return { ...DEFAULTS };
     const saved = JSON.parse(raw);
     return { ...DEFAULTS, ...saved, flags: { ...DEFAULTS.flags, ...(saved.flags || {}) } };

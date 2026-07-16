@@ -1,11 +1,11 @@
 {
-  "name": "0xreghex",
+  "name": "hexsnare",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "0xRegHex — regex forge for log hunters & pentesters. Select raw log tokens, forge portable capture-group regex.",
+  "description": "HexSnare - terminal-styled regex forge for log hunters, pentesters, and bug bounty researchers.",
   "keywords": ["regex", "logs", "pentest", "security", "grep", "dfir", "capture-groups"],
-  "license": "MIT",
+  "license": "UNLICENSED",
   "scripts": {
     "dev": "vite --port 1337 --open",
     "build": "vite build",

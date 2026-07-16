@@ -1,4 +1,4 @@
-// ui.js — DOM rendering + event wiring for 0xRegHex.
+// ui.js — DOM rendering + event wiring for HexSnare.
 
 import { store } from './store.js';
 import { inferMatchers, PATTERN_LIBRARY, LIBRARY_CATEGORIES } from './patterns.js';
@@ -10,7 +10,7 @@ import {
 } from './utils.js';
 
 const GROUP_COLORS = 8;
-const ONBOARD_KEY = '0xreghex.hideOnboard';
+const ONBOARD_KEY = 'hexsnare.hideOnboard';
 const TIPS = [
   'Hover over panels and controls to get quick hints while you explore.',
   'Start in BUILD: select a token in one log line to create a capture group.',

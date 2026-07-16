@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 
-// 0xRegHex is a pure static SPA — no backend, no runtime deps.
+// HexSnare is a pure static SPA - no backend, no runtime deps.
 export default defineConfig({
   base: './',
   build: {

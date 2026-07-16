@@ -8,7 +8,7 @@ No backend. No telemetry. No log upload. Everything runs in your browser.
 
 ![Static](https://img.shields.io/badge/static-client--side-00ff9c?style=for-the-badge&labelColor=070a0f)
 ![Vite](https://img.shields.io/badge/vite-powered-35e0ff?style=for-the-badge&labelColor=070a0f)
-![License](https://img.shields.io/badge/license-MIT-ffcf4d?style=for-the-badge&labelColor=070a0f)
+![License](https://img.shields.io/badge/license-proprietary-ff4d8d?style=for-the-badge&labelColor=070a0f)
 
 ## What It Does
 
@@ -108,4 +108,6 @@ Do not put secrets, API keys, private payloads, or sensitive investigation data 
 
 ## License
 
-MIT
+Proprietary. All rights reserved.
+
+This project is not open source. You may not copy, modify, redistribute, publish, sublicense, or reuse this code without explicit written permission from the author.
