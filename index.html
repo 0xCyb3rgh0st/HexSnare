@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="0xRegHex — regex forge for log hunters & pentesters. Select raw log tokens, forge portable capture-group regex." />
+    <title>0xRegHex // regex forge</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>⌗</text></svg>" />
+  </head>
+  <body>
+    <div class="scanlines" aria-hidden="true"></div>
+
+    <div class="app">
+      <!-- ── Title bar ─────────────────────────────────────────────── -->
+      <header class="titlebar">
+        <div class="tb-left">
+          <span class="dots"><i class="d-r"></i><i class="d-y"></i><i class="d-g"></i></span>
+          <span class="brand"><b>0x</b>RegHex<span class="caret">▊</span></span>
+          <span class="tagline">regex forge for log hunters &amp; pentesters</span>
+        </div>
+        <div class="tb-right">
+          <div class="flags" id="flags" title="Turn regex flags on or off">
+            <button class="flag" data-flag="g" title="g: find every match, not just first">g</button>
+            <button class="flag" data-flag="i" title="i: ignore letter case">i</button>
+            <button class="flag" data-flag="m" title="m: ^ and $ work per line">m</button>
+            <button class="flag" data-flag="s" title="s: dot can match new lines">s</button>
+          </div>
+          <button class="btn ghost" id="btnClear" title="Clear all captures (Ctrl+K)">clear</button>
+          <button class="btn ghost" id="btnSample" title="Load a fresh sample log">sample</button>
+        </div>
+      </header>
+
+      <!-- ── Onboarding ────────────────────────────────────────────── -->
+      <section class="onboard" id="onboard" title="Quick start tips">
+        <div class="onboard-main">
+          <span class="onboard-kicker">init guide</span>
+          <span class="onboard-tip" id="onboardTip">Hover over panels to get quick hints while you explore.</span>
+        </div>
+        <div class="onboard-actions">
+          <button class="mini-btn" id="btnTipNext" title="Show another quick tip">next tip</button>
+          <button class="mini-btn ghost" id="btnOnboardClose" title="Hide tips">dismiss</button>
+        </div>
+      </section>
+
+      <!-- ── Editor ────────────────────────────────────────────────── -->
+      <section class="editor-pane">
+        <div class="pane-head">
+          <div class="tabs" id="viewTabs">
+            <button class="tab" data-view="build" title="Select tokens to make capture groups">◈ BUILD</button>
+            <button class="tab" data-view="test" title="Run the regex against the log text">◎ TEST</button>
+          </div>
+          <div class="pane-head-right">
+            <label class="chk" title="Treat spaces and tabs as flexible whitespace"><input type="checkbox" id="optWs" /> <span>generalize \s+</span></label>
+            <label class="chk" title="Force the regex to match the full line"><input type="checkbox" id="optAnchor" /> <span>anchor ^$</span></label>
+            <span class="hint" id="editorHint" title="Select part of one log line to capture it">select a token to forge a group</span>
+          </div>
+        </div>
+        <div class="editor" id="editor">
+          <div class="backdrop" id="backdrop"><div class="highlights" id="highlights"></div></div>
+          <textarea id="input" spellcheck="false" autocomplete="off" autocapitalize="off" wrap="off"></textarea>
+        </div>
+      </section>
+
+      <!-- ── Side panels ───────────────────────────────────────────── -->
+      <aside class="side">
+        <div class="panel" id="panelCaptures">
+          <div class="panel-head" title="Captured tokens become named regex groups"><span>◆ capture groups</span><span class="badge" id="capCount">0</span></div>
+          <div class="panel-body" id="captures"></div>
+        </div>
+
+        <div class="panel" id="panelExplain">
+          <div class="panel-head" title="Shows what each regex part means"><span>❯ explain</span></div>
+          <div class="panel-body" id="explain"></div>
+        </div>
+
+        <div class="panel grow" id="panelLibrary">
+          <div class="panel-head" title="Click a pattern to use or copy it">
+            <span>▤ pattern library</span>
+            <input type="search" id="libSearch" class="lib-search" placeholder="filter…" title="Search built-in regex snippets" />
+          </div>
+          <div class="panel-body" id="library"></div>
+        </div>
+      </aside>
+
+      <!-- ── Output ────────────────────────────────────────────────── -->
+      <section class="output-pane">
+        <div class="out-tabs" id="fmtTabs">
+          <button class="fmt" data-fmt="js" title="Copy as a JavaScript RegExp">JS</button>
+          <button class="fmt" data-fmt="grep" title="Copy for grep -P">grep -P</button>
+          <button class="fmt" data-fmt="python" title="Copy for Python re">Python</button>
+          <button class="fmt" data-fmt="raw" title="Plain regex only">raw</button>
+        </div>
+        <div class="out-body">
+          <code class="out-regex" id="outRegex"></code>
+        </div>
+        <div class="out-actions">
+          <span class="out-status" id="outStatus"></span>
+          <button class="btn" id="btnCopy" title="Copy (Ctrl+C in output)">⧉ copy</button>
+        </div>
+      </section>
+
+      <!-- ── Status bar ────────────────────────────────────────────── -->
+      <footer class="statusbar" id="statusbar">
+        <span id="stMode">◈ BUILD</span>
+        <span id="stCaptures">0 groups</span>
+        <span id="stMatches">—</span>
+        <span class="sb-spacer"></span>
+        <span id="stFlags">flags: g</span>
+        <span class="sb-brand">0xRegHex</span>
+      </footer>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
