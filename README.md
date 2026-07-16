@@ -66,6 +66,17 @@ Run smoke checks:
 npm test
 ```
 
+## GitHub Pages Deployment
+
+This repo includes a GitHub Actions workflow at `.github/workflows/deploy-pages.yml`.
+
+1. Push the project to GitHub.
+2. In the GitHub repo, open **Settings > Pages**.
+3. Set **Source** to **GitHub Actions**.
+4. Push to the `main` branch.
+
+The workflow installs dependencies with `npm ci`, runs smoke checks, builds `dist`, and deploys the static site to GitHub Pages.
+
 ## Keyboard Shortcuts
 
 | Shortcut | Action |
