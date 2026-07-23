@@ -92,6 +92,26 @@ export function copyToClipboard(text) {
   return Promise.resolve();
 }
 
+/**
+ * Trim leading/trailing whitespace off a raw text-selection span.
+ * A drag-select or double-click can overshoot into an adjacent tab/space;
+ * if that whitespace is left inside the capture's [start,end) range, the
+ * regex builder skips past it as part of the group instead of re-emitting
+ * it as literal/\s+ text, silently dropping it from the generated pattern.
+ * Returns adjusted absolute-offset-relative start/end plus the trimmed text.
+ */
+export function trimSelection(text, start, end) {
+  const lead = text.match(/^\s+/);
+  const trail = text.match(/\s+$/);
+  const trimStart = lead ? start + lead[0].length : start;
+  const trimEnd = trail ? end - trail[0].length : end;
+  return {
+    start: trimStart,
+    end: trimEnd,
+    text: text.slice(lead ? lead[0].length : 0, trail ? text.length - trail[0].length : text.length),
+  };
+}
+
 /** A short, stable id for capture groups. */
 let _idc = 0;
 export function uid(prefix = 'c') {

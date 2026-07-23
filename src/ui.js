@@ -6,7 +6,7 @@ import { buildRegex, formatFor, flagsToString } from './regexEngine.js';
 import { runTest } from './tester.js';
 import { explain } from './explainer.js';
 import {
-  escapeHtml, getLineAt, lineBounds, renderHighlights, copyToClipboard, uid,
+  escapeHtml, getLineAt, lineBounds, renderHighlights, copyToClipboard, uid, trimSelection,
 } from './utils.js';
 
 const GROUP_COLORS = 8;
@@ -79,14 +79,23 @@ function dismissOnboarding() {
 // ── selection → capture ─────────────────────────────────────────────────────
 
 function onSelect() {
-  if (store.state.view !== 'build') return;
   const ta = el.input;
-  const s = ta.selectionStart;
-  const e = ta.selectionEnd;
-  if (s === e) return;
+  if (store.state.view !== 'build') {
+    if (ta.selectionStart !== ta.selectionEnd) {
+      flash('switch to ◈ BUILD to forge a capture group from a selection', 'warn');
+    }
+    return;
+  }
+  const rawStart = ta.selectionStart;
+  const rawEnd = ta.selectionEnd;
+  if (rawStart === rawEnd) return;
 
-  const text = ta.value.slice(s, e);
-  if (!text.trim()) return;
+  const rawText = ta.value.slice(rawStart, rawEnd);
+  if (!rawText.trim()) return;
+
+  // Drop any leading/trailing whitespace the raw selection picked up so it
+  // doesn't get silently swallowed by the capture's offsets (see trimSelection).
+  const { start: s, end: e, text } = trimSelection(rawText, rawStart, rawEnd);
 
   const line = getLineAt(ta.value, s);
   // Keep selections inside a single line (per-line log records).

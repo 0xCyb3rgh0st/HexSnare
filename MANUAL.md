@@ -130,6 +130,17 @@ delimiter-separated logs (TSV, pipe-separated, etc.).
 > exactly 10 digits — a 13-digit millisecond epoch (e.g. from
 > JavaScript's `Date.now()`, or most modern JSON logs) silently
 > failed to match. It now matches 10–13 digits as advertised.
+>
+> **Also fixed:** selecting a token with a drag or double-click can
+> occasionally overshoot by one character into an adjacent tab or
+> space (easy to trigger on tab-separated logs like the built-in
+> sample). That stray whitespace used to get silently absorbed into
+> the capture group's offsets — dropped from the generated pattern
+> entirely instead of becoming literal/`\s+` text — so the built
+> regex would fail to match the very line it came from. Selections
+> are now trimmed before becoming a capture, so this can't happen.
+
+
 
 ---
 

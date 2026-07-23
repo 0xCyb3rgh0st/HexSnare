@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { buildRegex, formatFor } from '../src/regexEngine.js';
 import { inferMatchers, PATTERN_LIBRARY } from '../src/patterns.js';
 import { runTest } from '../src/tester.js';
+import { trimSelection } from '../src/utils.js';
 
 const flags = { g: true, i: false, m: false, s: false, u: false };
 
@@ -64,5 +65,26 @@ const epochRe = new RegExp(epochLib.re);
 assert.ok(epochRe.test('1690000000'), '10-digit (seconds) epoch should match');
 assert.ok(epochRe.test('1690000000123'), '13-digit (millisecond) epoch should match');
 assert.equal(inferMatchers('1690000000123')[0].label, 'Epoch timestamp');
+
+// trimSelection: a drag/double-click selection that overshoots into an
+// adjacent tab/space must not leak that whitespace into the capture's
+// offsets — it needs to come back out as ordinary literal text instead,
+// otherwise buildRegex silently drops it from the generated pattern.
+{
+  const line = 'ip=192.168.1.1\tport=443';
+  const overshotStart = line.indexOf('192.168.1.1');
+  const overshotEnd = overshotStart + '192.168.1.1'.length + 1; // grabs the trailing tab
+  const trimmed = trimSelection(line.slice(overshotStart, overshotEnd), overshotStart, overshotEnd);
+  assert.equal(trimmed.text, '192.168.1.1');
+  assert.equal(trimmed.end, overshotStart + '192.168.1.1'.length);
+
+  const builtWithOvershoot = buildRegex(
+    line,
+    [{ start: trimmed.start, end: trimmed.end, matcher: '\\d{1,3}(?:\\.\\d{1,3}){3}', name: 'ip' }],
+    { generalizeWs: true, anchor: false },
+  );
+  assert.equal(builtWithOvershoot.pattern, 'ip=(?<ip>\\d{1,3}(?:\\.\\d{1,3}){3})\\s+port=443');
+  assert.ok(new RegExp(builtWithOvershoot.pattern).test(line), 'built pattern must still match its own source line');
+}
 
 console.log('smoke checks passed');
