@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 
 import { buildRegex, formatFor } from '../src/regexEngine.js';
-import { inferMatchers } from '../src/patterns.js';
+import { inferMatchers, PATTERN_LIBRARY } from '../src/patterns.js';
 import { runTest } from '../src/tester.js';
 
 const flags = { g: true, i: false, m: false, s: false, u: false };
@@ -40,5 +40,29 @@ assert.equal(tested.count, 2);
 assert.equal(tested.matches[0].groups[0].text, '123');
 assert.deepEqual(tested.matches[0].groups[0].range, { start: 2, end: 5 });
 assert.equal(tested.matches[0].groups[0].name, 'num');
+
+// IPv6 "::" compression must be recognized — both loopback/link-local
+// shorthand and full expansion — in the smart-matcher inference...
+assert.equal(inferMatchers('::1')[0].label, 'IPv6 address');
+assert.equal(inferMatchers('fe80::1')[0].label, 'IPv6 address');
+assert.equal(inferMatchers('2001:db8::8a2e:370:7334')[0].label, 'IPv6 address');
+assert.equal(inferMatchers('2001:0db8:85a3:0000:0000:8a2e:0370:7334')[0].label, 'IPv6 address');
+
+// ...and in the pattern-library snippet, including full-length substring
+// extraction from raw log text (not just a truncated partial match).
+const ipv6Lib = PATTERN_LIBRARY.find((p) => p.cat === 'Network' && p.label === 'IPv6');
+const ipv6Re = new RegExp(ipv6Lib.re, `${ipv6Lib.flags || ''}g`);
+assert.deepEqual(
+  [...'src=fe80::a1b2:c3d4:e5f6:7890 dst=::ffff:192.168.1.1'.matchAll(ipv6Re)].map((m) => m[0]),
+  ['fe80::a1b2:c3d4:e5f6:7890', '::ffff:192.168.1.1'],
+);
+
+// Epoch timestamps: label promises "10-13 digit" (seconds vs. millisecond
+// epoch) so both lengths must actually match.
+const epochLib = PATTERN_LIBRARY.find((p) => p.cat === 'Time' && p.label === 'Epoch (10-13 digit)');
+const epochRe = new RegExp(epochLib.re);
+assert.ok(epochRe.test('1690000000'), '10-digit (seconds) epoch should match');
+assert.ok(epochRe.test('1690000000123'), '13-digit (millisecond) epoch should match');
+assert.equal(inferMatchers('1690000000123')[0].label, 'Epoch timestamp');
 
 console.log('smoke checks passed');

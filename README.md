@@ -41,6 +41,8 @@ HexSnare turns messy log lines into reusable regex patterns.
 - Create reusable capture groups for scripts and reports
 - Test log parsing ideas without sending logs to a server
 
+Full walkthrough, panel-by-panel reference, and troubleshooting: see [MANUAL.md](MANUAL.md).
+
 ## Quick Start
 
 ```bash

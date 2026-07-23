@@ -7,6 +7,30 @@
 // A "matcher" is the INNER body of a capture group (no surrounding parens);
 // regexEngine wraps it in ( ... ) or (?<name> ... ).
 
+// ---- IPv6 -------------------------------------------------------------
+// Built from the standard 8-alternative RFC 4291 shape so that "::"
+// compression (::1, fe80::1, 2001:db8::8a2e:370:7334, ::ffff:1.2.3.4, ...)
+// is recognized. Alternatives are ordered so the widest possible run of
+// trailing groups is tried first — this makes the pattern behave correctly
+// both when anchored (BUILD token inference) and when used unanchored as a
+// substring scan over raw log text (PATTERN_LIBRARY), where a narrower
+// alternative would otherwise "steal" a shorter, truncated match.
+const IPV6_SEG = '[A-F0-9]{1,4}';
+const IPV4_TAIL = '(?:(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)';
+const IPV6_CORE = [
+  `(?:${IPV6_SEG}:){7}${IPV6_SEG}`, // 1:2:3:4:5:6:7:8
+  `(?:${IPV6_SEG}:){1,4}:${IPV4_TAIL}`, // 1:2:3:4::1.2.3.4 (IPv4-embedded)
+  `::(?:ffff(?::0{1,4})?:)?${IPV4_TAIL}`, // ::ffff:1.2.3.4 / ::1.2.3.4
+  `(?:${IPV6_SEG}:){1,2}(?::${IPV6_SEG}){1,5}`,
+  `(?:${IPV6_SEG}:){1,3}(?::${IPV6_SEG}){1,4}`,
+  `(?:${IPV6_SEG}:){1,4}(?::${IPV6_SEG}){1,3}`,
+  `(?:${IPV6_SEG}:){1,5}(?::${IPV6_SEG}){1,2}`,
+  `(?:${IPV6_SEG}:){1,6}:${IPV6_SEG}`,
+  `(?:${IPV6_SEG}:){1,7}:`, // trailing "::" (1::, 1:2:3:4:5:6:7::)
+  `${IPV6_SEG}:(?:(?::${IPV6_SEG}){1,6})`,
+  `:(?:(?::${IPV6_SEG}){1,7}|:)`, // leading "::" (::1, ::)
+].join('|');
+
 // ---- Detectors: full-selection type guesses -------------------------------
 // Each detector's `test` is anchored against the WHOLE selection. When it
 // matches, `matcher` is offered as a smart capture body, most-specific first.
@@ -20,8 +44,8 @@ const DETECTORS = [
   },
   {
     label: 'IPv6 address',
-    test: /^(?:[A-F0-9]{1,4}:){2,7}[A-F0-9]{1,4}$|^::(?:[A-F0-9]{1,4}:){0,6}[A-F0-9]{1,4}$/i,
-    matcher: '[A-Fa-f0-9:]+',
+    test: new RegExp(`^(?:${IPV6_CORE})$`, 'i'),
+    matcher: IPV6_CORE,
     name: 'ip6',
   },
   {
@@ -80,8 +104,8 @@ const DETECTORS = [
   },
   {
     label: 'Epoch timestamp',
-    test: /^\d{10}(?:\.\d+)?$/,
-    matcher: '\\d{10}(?:\\.\\d+)?',
+    test: /^\d{10,13}(?:\.\d+)?$/,
+    matcher: '\\d{10,13}(?:\\.\\d+)?',
     name: 'epoch',
   },
   {
@@ -161,7 +185,7 @@ export function inferMatchers(text) {
 export const PATTERN_LIBRARY = [
   // Network
   { cat: 'Network', label: 'IPv4', re: '\\b(?:(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)\\b' },
-  { cat: 'Network', label: 'IPv6', re: '(?:[A-F0-9]{1,4}:){2,7}[A-F0-9]{1,4}', flags: 'i' },
+  { cat: 'Network', label: 'IPv6', re: IPV6_CORE, flags: 'i' },
   { cat: 'Network', label: 'CIDR', re: '(?:\\d{1,3}\\.){3}\\d{1,3}\\/\\d{1,2}' },
   { cat: 'Network', label: 'MAC address', re: '(?:[0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}' },
   { cat: 'Network', label: 'Port (host:port)', re: '\\b(?:\\d{1,3}\\.){3}\\d{1,3}:(\\d{1,5})\\b' },
@@ -188,7 +212,7 @@ export const PATTERN_LIBRARY = [
   { cat: 'Secrets', label: 'Generic api_key=', re: '(?:api[_-]?key|secret|token|passwd|password)\\s*[=:]\\s*["\']?([^"\'\\s]+)', flags: 'i' },
 
   // Timestamps
-  { cat: 'Time', label: 'Epoch (10-13 digit)', re: '\\b\\d{10}(?:\\.\\d+)?\\b' },
+  { cat: 'Time', label: 'Epoch (10-13 digit)', re: '\\b\\d{10,13}(?:\\.\\d+)?\\b' },
   { cat: 'Time', label: 'ISO-8601', re: '\\d{4}-\\d{2}-\\d{2}[T ]\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:?\\d{2})?' },
   { cat: 'Time', label: 'Syslog date', re: '[A-Z][a-z]{2}\\s+\\d{1,2}\\s\\d{2}:\\d{2}:\\d{2}' },
   { cat: 'Time', label: 'Apache CLF date', re: '\\[\\d{2}\\/[A-Za-z]{3}\\/\\d{4}:\\d{2}:\\d{2}:\\d{2} [+-]\\d{4}\\]' },
